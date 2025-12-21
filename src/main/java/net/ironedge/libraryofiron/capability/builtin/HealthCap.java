@@ -5,42 +5,57 @@ import net.ironedge.libraryofiron.core.LoIContext;
 
 public final class HealthCap implements LoICapability<HealthCap> {
 
-    private final float maxHealth;
+    private float maxHealth;
     private float currentHealth;
+    private boolean downed;
 
     public HealthCap(float maxHealth) {
         this.maxHealth = maxHealth;
         this.currentHealth = maxHealth;
+        this.downed = false;
+    }
+
+    public HealthCap() {
     }
 
     @Override
-    public void onAttach(LoIContext context, Object holder) {
-        // optionally fire attach event
-    }
+    public void onAttach(LoIContext context, Object holder) {}
 
     @Override
     public void tick(LoIContext context, Object holder) {
-        // regen or passive effects if needed
+        // Optional: health regen logic
+        if (!downed && currentHealth < maxHealth) {
+            currentHealth = Math.min(maxHealth, currentHealth + 0.5f);
+        }
     }
 
     public void damage(float amount) {
-        currentHealth = Math.max(0, currentHealth - amount);
+        currentHealth -= amount;
+        if (currentHealth <= 0) {
+            downed = true;
+            currentHealth = 0;
+        }
     }
 
     public void heal(float amount) {
         currentHealth = Math.min(maxHealth, currentHealth + amount);
+        if (currentHealth > 0) downed = false;
     }
 
-    public float getCurrentHealth() {
-        return currentHealth;
+    public boolean isDowned() {
+        return downed;
     }
 
-    public float getMaxHealth() {
-        return maxHealth;
+    public boolean isDead() {
+        return downed && currentHealth <= 0;
     }
 
     @Override
     public HealthCap getData() {
         return this;
+    }
+
+    public float getCurrentHealth() {
+        return currentHealth;
     }
 }

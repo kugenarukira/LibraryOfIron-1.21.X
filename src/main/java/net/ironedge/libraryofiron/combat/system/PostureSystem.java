@@ -9,24 +9,45 @@ import net.minecraft.world.entity.LivingEntity;
 
 public final class PostureSystem {
 
-    private static final CapabilityKey<PostureCap> POSTURE_KEY = new CapabilityKey<>("posture", PostureCap.class);
+    public static final CapabilityKey<PostureCap> POSTURE_KEY = new CapabilityKey<>("posture", PostureCap.class);
 
-    public void applyPostureDamage(LivingEntity target, float amount) {
+    /** Apply posture damage. Returns true if staggered. */
+    public static boolean applyPostureDamage(LivingEntity target, float amount) {
         CapabilityContainer container = LoICore.context().getCapabilityContainer(target);
-        if (container == null) return;
+        if (container == null || !container.has(POSTURE_KEY)) return false;
 
-        PostureCap postureCap = null;
-        if (container.has(POSTURE_KEY)) {
-            postureCap = container.get(POSTURE_KEY).getData();
-        }
+        PostureCap cap = container.get(POSTURE_KEY).getData();
+        if (cap == null) return false;
 
-        if (postureCap == null) return;
+        float previous = cap.getCurrentPosture();
+        cap.takeDamage(amount);
 
-        float previous = postureCap.getCurrentPosture();
-        postureCap.takeDamage(amount);
-
-        if (postureCap.isStaggered()) {
+        boolean staggered = cap.isStaggered();
+        if (staggered) {
             LoICore.context().getEventBus().fire(new EntityStaggeredEvent(target, previous));
         }
+
+        return staggered;
+    }
+
+    /** Fully break posture */
+    public static void applyPostureBreak(LivingEntity target) {
+        CapabilityContainer container = LoICore.context().getCapabilityContainer(target);
+        if (container == null || !container.has(POSTURE_KEY)) return;
+
+        PostureCap cap = container.get(POSTURE_KEY).getData();
+        if (cap == null) return;
+
+        cap.breakPosture();
+        LoICore.context().getEventBus().fire(new EntityStaggeredEvent(target, cap.getCurrentPosture()));
+    }
+
+    /** Reset posture */
+    public static void resetPosture(LivingEntity target) {
+        CapabilityContainer container = LoICore.context().getCapabilityContainer(target);
+        if (container == null || !container.has(POSTURE_KEY)) return;
+
+        PostureCap cap = container.get(POSTURE_KEY).getData();
+        if (cap != null) cap.resetPosture();
     }
 }

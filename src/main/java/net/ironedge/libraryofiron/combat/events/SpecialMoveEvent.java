@@ -3,15 +3,27 @@ package net.ironedge.libraryofiron.combat.events;
 import net.ironedge.libraryofiron.event.LoIEvent;
 import net.minecraft.world.entity.LivingEntity;
 
-public class SpecialMoveEvent extends LoIEvent {
-    private final LivingEntity performer;
-    private final String moveId;
+public final class SpecialMoveEvent extends LoIEvent {
 
-    public SpecialMoveEvent(LivingEntity performer, String moveId) {
-        this.performer = performer;
+    private final LivingEntity executor;
+    private final String moveId;
+    private final LivingEntity target;
+
+    public SpecialMoveEvent(LivingEntity executor, String moveId, LivingEntity target) {
+        this.executor = executor;
         this.moveId = moveId;
+        this.target = target;
     }
 
-    public LivingEntity getPerformer() { return performer; }
-    public String getMoveId() { return moveId; }
+    public LivingEntity getExecutor() {
+        return executor;
+    }
+
+    public String getMoveId() {
+        return moveId;
+    }
+
+    public LivingEntity getTarget() {
+        return target;
+    }
 }

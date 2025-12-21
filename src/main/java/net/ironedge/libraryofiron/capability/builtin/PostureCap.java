@@ -16,19 +16,16 @@ public final class PostureCap implements LoICapability<PostureCap> {
     }
 
     public PostureCap() {
-
+        this(100f);
     }
-
 
     @Override
-    public void onAttach(LoIContext context, Object holder) {
-
-    }
+    public void onAttach(LoIContext context, Object holder) {}
 
     @Override
     public void tick(LoIContext context, Object holder) {
         if (!staggered && currentPosture < maxPosture) {
-            currentPosture = Math.min(maxPosture, currentPosture + 0.5f); // regen
+            currentPosture = Math.min(maxPosture, currentPosture + 0.5f);
         }
     }
 
@@ -40,21 +37,31 @@ public final class PostureCap implements LoICapability<PostureCap> {
         }
     }
 
+    public void breakPosture() {
+        currentPosture = 0;
+        staggered = true;
+    }
+
     public void resetPosture() {
-        staggered = false;
         currentPosture = maxPosture;
+        staggered = false;
     }
 
     public boolean isStaggered() {
         return staggered;
     }
 
-    @Override
-    public PostureCap getData() {
-        return this;
+    /** New method to match other systems */
+    public boolean isBroken() {
+        return staggered; // same as isStaggered
     }
 
     public float getCurrentPosture() {
         return currentPosture;
+    }
+
+    @Override
+    public PostureCap getData() {
+        return this;
     }
 }
