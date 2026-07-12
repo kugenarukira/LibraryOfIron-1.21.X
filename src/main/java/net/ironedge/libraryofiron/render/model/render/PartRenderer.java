@@ -4,5 +4,8 @@ import net.ironedge.libraryofiron.render.core.FrameContext;
 import net.ironedge.libraryofiron.render.model.part.PartInstance;
 
 public interface PartRenderer {
+
+    PartRenderer NOOP = (part, frame) -> {};
+
     void render(PartInstance part, FrameContext frame);
 }

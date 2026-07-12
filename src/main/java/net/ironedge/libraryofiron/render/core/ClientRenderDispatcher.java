@@ -2,6 +2,7 @@ package net.ironedge.libraryofiron.render.core;
 
 import net.ironedge.libraryofiron.LibaryofIron;
 import net.ironedge.libraryofiron.render.pose.PoseGraph;
+import net.ironedge.libraryofiron.render.umar.material.UMaterialDebugBootstrap;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -18,9 +19,14 @@ import org.joml.Vector3f;
 public final class ClientRenderDispatcher {
 
     private static final RenderEngine ENGINE = new RenderEngine();
+    private static Boolean wasFirstPerson = null;
 
     static {
+        UMaterialDebugBootstrap.init();
         RenderBootstrap.install(ENGINE);
+        net.ironedge.libraryofiron.render.umr.UMRBootstrap.install(ENGINE);
+       // net.ironedge.libraryofiron.render.physics.debug.PhysicsDebugBootstrap.install(ENGINE);
+        //net.ironedge.libraryofiron.render.umr.mesh.debug.WeightedSurfaceMeshDebugContent.install(ENGINE);
     }
 
     public static RenderEngine engine() {
@@ -34,6 +40,7 @@ public final class ClientRenderDispatcher {
     @SubscribeEvent
     public static void onAfterSky(RenderLevelStageEvent.AfterSky event) {
         PoseGraph.get().beginFrame();
+
     }
 
     /**
@@ -69,16 +76,21 @@ public final class ClientRenderDispatcher {
                 (float) camera.getPosition().z
         );
 
+        boolean firstPerson = mc.options.getCameraType().isFirstPerson();
+        boolean perspectiveChanged = wasFirstPerson != null && wasFirstPerson != firstPerson;
+        wasFirstPerson = firstPerson;
+
         FrameContext ctx = new FrameContext(partialTicks, view, proj, camPos)
                 .attach("level", level)
                 .attach("cameraEntity", cameraEntity)
                 .attach("camera", camera)
                 .attach("poseStack", event.getPoseStack())
                 .attach("levelRenderer", event.getLevelRenderer())
-                .attach("levelRenderState", event.getLevelRenderState());
+                .attach("levelRenderState", event.getLevelRenderState())
+                .attach("perspectiveChanged", perspectiveChanged);
 
 
-
+        net.ironedge.libraryofiron.render.pose.sources.FirstPersonPoseSource.capture(ctx, PoseGraph.get());
         ENGINE.renderFrame(ctx);
     }
 

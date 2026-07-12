@@ -9,17 +9,31 @@ public final class PoseGraphAnchorResolver {
 
     private PoseGraphAnchorResolver() {}
 
-    public static AnchorPoseQ resolvePlayerAnchor(AnchorKey key) {
-        var ref = PlayerAnchorMap.get(key);
-        if (ref == null) return null;
+    public static AnchorPoseQ resolveAnchor(String poseSpaceId, AnchorKey key, AnchorRefMap map) {
+        var ref = map.get(key);
+        if (ref == null) {
+           return null;
+        }
 
-        PoseTransform bone = PoseGraph.get().frame().get(new PoseKey("player", ref.nodeId()));
-        if (bone == null) return null;
+        PoseKey pk = new PoseKey(poseSpaceId, ref.nodeId());
+        PoseTransform bone = PoseGraph.get().frame().get(pk);
 
-        // Apply local offset in bone space: pos + (offset rotated by bone rot)
+        if (bone == null) {
+            return null;
+        }
+
         Vector3f offsetWorld = new Vector3f(ref.localOffset()).rotate(bone.rotation());
         Vector3f pos = new Vector3f(bone.translation()).add(offsetWorld);
 
-        return new AnchorPoseQ(pos, new Quaternionf(bone.rotation()), new Vector3f(1,1,1));
+        return new AnchorPoseQ(pos, new Quaternionf(bone.rotation()), new Vector3f(1, 1, 1));
     }
+
+    public static AnchorPoseQ resolveAnchor(String poseSpaceId, AnchorKey key) {
+        return resolveAnchor(poseSpaceId, key, PlayerAnchorMap.INSTANCE);
+    }
+
+    public static AnchorPoseQ resolvePlayerAnchor(AnchorKey key) {
+        return resolveAnchor("player", key, PlayerAnchorMap.INSTANCE);
+    }
+
 }

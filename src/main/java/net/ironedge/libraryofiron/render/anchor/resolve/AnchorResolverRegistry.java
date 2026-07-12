@@ -41,16 +41,37 @@ public final class AnchorResolverRegistry {
     /**
      * Unified resolution: look up resolver by anchor type and resolve.
      */
+
+    public static ResolvedAnchor resolveAnchor(Anchor anchor, AnchorResolutionContext context) {
+        return resolveAnchor(anchor, context, null);
+    }
+
     public static ResolvedAnchor resolveAnchor(
             Anchor anchor,
-            AnchorResolutionContext context
+            AnchorResolutionContext context,
+            ResolvedAnchor parent // nullable
     ) {
-        return getResolver(anchor.type())
-                .map(resolver -> resolver.resolve(anchor, context))
-                .orElseGet(() -> {
-                    // fallback identity transform if no resolver registered
-                    return new ResolvedAnchor(anchor, AnchorTransform.identity());
-                });
+        ResolvedAnchor localResolved = getResolver(anchor.type())
+                .map(r -> ((AnchorResolver<Anchor>) r).resolve(anchor, context))
+                .orElse(new ResolvedAnchor(anchor, AnchorTransform.identity()));
+
+        if (parent == null) return localResolved;
+
+        // Compose parent + local (TRS)
+        AnchorTransform p = parent.transform();
+        AnchorTransform l = localResolved.transform();
+
+        // worldRot = parentRot * localRot
+        var worldRot = new org.joml.Quaternionf(p.rotation()).mul(l.rotation());
+
+        // worldScale = parentScale * localScale (component-wise)
+        var worldScale = new org.joml.Vector3f(p.scale()).mul(l.scale());
+
+        // worldPos = parentPos + (localPos * parentScale) rotated by parentRot
+        var off = new org.joml.Vector3f(l.translation()).mul(p.scale()).rotate(p.rotation());
+        var worldPos = new org.joml.Vector3f(p.translation()).add(off);
+
+        return new ResolvedAnchor(anchor, new AnchorTransform(worldPos, worldRot, worldScale));
     }
 
     /**

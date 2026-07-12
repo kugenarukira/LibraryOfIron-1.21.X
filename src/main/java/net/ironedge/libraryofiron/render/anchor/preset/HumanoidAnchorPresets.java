@@ -33,8 +33,8 @@ public final class HumanoidAnchorPresets {
             );
         }
 
-        // ---------------- SPINE_03 ----------------
-        if ("spine_03".equals(key.id()) && e instanceof LivingEntity le) {
+        // ---------------- TORSO ----------------
+        if ("torso".equals(key.id()) && e instanceof LivingEntity le) {
             yaw = lerpedBodyYaw(le, pt);
 
             boolean flightOrSwim = isFallFlyingSafe(le) || isSwimmingSafe(le);

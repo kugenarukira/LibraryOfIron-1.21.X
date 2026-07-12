@@ -22,6 +22,7 @@ public final class PlayerPoseCaptureLayer extends RenderLayer<AvatarRenderState,
 
     public PlayerPoseCaptureLayer(RenderLayerParent<AvatarRenderState, PlayerModel> parent) {
         super(parent);
+        //System.out.println("[LoI] PlayerPoseCaptureLayer constructed");
     }
 
     @Override
@@ -33,6 +34,8 @@ public final class PlayerPoseCaptureLayer extends RenderLayer<AvatarRenderState,
             float p1,
             float p2
     ) {
+        //System.out.println("[LoI] PlayerPoseCaptureLayer.submit");
+
         PlayerModel model = this.getParentModel();
 
         // capture world-space transforms using the actual posed stack math
@@ -42,12 +45,6 @@ public final class PlayerPoseCaptureLayer extends RenderLayer<AvatarRenderState,
         capturePartWorld("LeftArm", model.leftArm, poseStack);
         capturePartWorld("RightLeg", model.rightLeg, poseStack);
         capturePartWorld("LeftLeg", model.leftLeg, poseStack);
-
-        // Debug print (rate-limited)
-        counter++;
-        if (counter % 240 == 0) {
-            System.out.println("[LoI] PlayerPoseCaptureLayer.submit firing");
-        }
     }
 
     private static void capturePartWorld(String nodeId, ModelPart part, PoseStack basePoseStack) {

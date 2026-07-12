@@ -18,4 +18,5 @@ public final class PoseGraph {
     public void beginFrame() {
         frame.clear();
     }
+
 }

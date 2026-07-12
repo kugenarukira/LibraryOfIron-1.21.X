@@ -16,7 +16,6 @@ public final class DebugPrintNode extends RenderNode {
     public void render(FrameContext context) {
         frames++;
         if (frames % 60 == 0) {
-            System.out.println("[LoI] Render frame event is running.");
         }
     }
 }

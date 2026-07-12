@@ -32,9 +32,6 @@ public final class EntityInterp {
         // Log once so we know if elytra jitter is because we can't find prev fields
         if (!loggedMissingPrevPos) {
             loggedMissingPrevPos = true;
-            System.out.println("[LoI] EntityInterp: could not find prev position fields on "
-                    + e.getClass().getName()
-                    + " (xo/yo/zo or fallbacks). Using tick position only.");
         }
 
         // Fallback (tick position)

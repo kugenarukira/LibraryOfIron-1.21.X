@@ -6,8 +6,11 @@ import net.ironedge.libraryofiron.core.LoICore;
 import net.ironedge.libraryofiron.core.LoILog;
 import net.ironedge.libraryofiron.render.anchor.AnchorType;
 import net.ironedge.libraryofiron.render.anchor.impl.DynamicAnchorResolver;
+import net.ironedge.libraryofiron.render.anchor.preset.AnchorKeys;
 import net.ironedge.libraryofiron.render.anchor.resolve.AnchorResolverRegistry;
 import net.ironedge.libraryofiron.render.anchor.impl.StaticAnchorResolver;
+import net.ironedge.libraryofiron.render.anchor.resolve.PoseGraphAnchorProvider;
+import net.ironedge.libraryofiron.render.pose.PlayerAnchorMap;
 
 public class LoIRegistry {
 
@@ -17,7 +20,7 @@ public class LoIRegistry {
     public static CapabilityKey<StatusEffectCap> STATUS_EFFECT_KEY;
     public static CapabilityKey<StanceCap> STANCE_CAP_KEY;
     public static StaticAnchorResolver staticResolver = new StaticAnchorResolver();
-    static DynamicAnchorResolver dynamicResolver = new DynamicAnchorResolver();
+    public static DynamicAnchorResolver dynamicResolver = new DynamicAnchorResolver();
     public static void registerAll() {
         POSTURE_CAP_KEY = new CapabilityKey<>("posture", PostureCap.class);
         HEALTH_CAP_KEY = new CapabilityKey<>("health", HealthCap.class);
@@ -31,7 +34,10 @@ public class LoIRegistry {
         LoICore.context().registerData(STATUS_EFFECT_KEY, new StatusEffectCap());
         AnchorResolverRegistry.registerResolver(AnchorType.STATIC, staticResolver);
         AnchorResolverRegistry.registerResolver(AnchorType.DYNAMIC, dynamicResolver);
+        dynamicResolver.registerProvider(AnchorKeys.HAND_R, new PoseGraphAnchorProvider("player", PlayerAnchorMap.INSTANCE));
+        dynamicResolver.registerProvider(AnchorKeys.HAND_L, new PoseGraphAnchorProvider("player", PlayerAnchorMap.INSTANCE));
 
+// etc
 
         LoILog.info("Registered core capabilities");
     }
